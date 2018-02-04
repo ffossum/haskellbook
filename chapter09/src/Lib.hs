@@ -38,3 +38,59 @@ myZipWith f (a:as) (b:bs) = (f a b) : myZipWith f as bs
 
 myZip2 :: [a] -> [b] -> [(a, b)]
 myZip2 = myZipWith (,)
+
+myOr :: [Bool] -> Bool
+myOr [] = False
+myOr (x:xs) = x || myOr xs
+
+
+myAny :: (a -> Bool) -> [a] -> Bool
+myAny _ [] = False
+myAny f (x:xs) = f x || myAny f xs
+
+myElem :: Eq a => a -> [a] -> Bool
+myElem _ [] = False
+myElem a (x:xs) = a == x || myElem a xs
+
+myElem2 :: Eq a => a -> [a] -> Bool
+myElem2 a = myAny (==a)
+
+myReverse :: [a] -> [a]
+myReverse f = go f []
+    where
+        go [] result = result
+        go (x:xs) result = go xs (x:result)
+
+squish :: [[a]] -> [a]
+squish [] = []
+squish (x:xs) = x ++ squish xs
+
+squishMap :: (a -> [b]) -> [a] -> [b]
+squishMap _ [] = []
+squishMap f (x:xs) = (f x) ++ (squishMap f xs)
+
+squishAgain :: [[a]] -> [a]
+squishAgain = squishMap id
+
+myMaximumBy :: (a -> a -> Ordering) -> [a] -> a
+myMaximumBy f (x:xs) = go xs x
+    where
+        go [] res = res
+        go (x:xs) res = case (f x res) of
+            GT -> go xs x
+            _  -> go xs res
+
+myMinimumBy :: (a -> a -> Ordering) -> [a] -> a
+myMinimumBy f (x:xs) = go xs x
+    where
+        go [] res = res
+        go (x:xs) res = case (f x res) of
+            LT -> go xs x
+            _  -> go xs res
+
+myMaximum :: (Ord a) => [a] -> a
+myMaximum = myMaximumBy compare
+
+myMinimum :: (Ord a) => [a] -> a
+myMinimum = myMinimumBy compare
+
