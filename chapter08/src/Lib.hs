@@ -11,10 +11,11 @@ incTimes' :: (Eq a, Num a) => a -> a -> a
 incTimes' times n = applyTimes times (+1) n
 
 fibonacci :: Integral a => [a]
-fibonacci = [0,1,1] ++ zipWith (+) as bs
+fibonacci = [1,1] ++ zipWith (+) as bs
     where
-        as = drop 1 fibonacci
-        bs = drop 1 as
+        as = fibonacci
+        bs = tail as
+
 
 cattyConny :: String -> String -> String
 cattyConny x y = x ++ " mrow " ++ y
