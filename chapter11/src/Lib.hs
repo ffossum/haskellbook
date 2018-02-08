@@ -1,81 +1,58 @@
-{-# LANGUAGE FlexibleInstances #-}
-module Lib
-    ( someFunc
-    ) where
-
-import Data.Int
-
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
-
-data DogueDeBordeaux doge =
-    DogueDeBordeaux doge
-
-data Doggies a =
-    Husky a
-  | Mastiff a
-  deriving (Eq, Show)
-
-data Price = Price Integer deriving (Eq, Show)
-
-data Manufacturer = Mini | Mazda | Tata deriving (Eq, Show)
-
-data Airline = PapuAir | CatapultsR'Us | TakeYourChancesUnited deriving (Eq, Show)
-
-data Vehicle = Car Manufacturer Price
-    | Plane Airline Size
+module Lib where
+data OperatingSystem =
+    GnuPlusLinux
+    | OpenBSDPlusNevermindJustBSDStill
+    | Mac
+    | Windows
     deriving (Eq, Show)
 
-myCar = Car Mini (Price 14000)
-urCar = Car Mazda (Price 20000)
-clownCar = Car Tata (Price 7000)
+data ProgLang =
+    Haskell
+    | Agda
+    | Idris
+    | PureScript
+    deriving (Eq, Show)
 
-isCar :: Vehicle -> Bool
-isCar (Car _ _) = True
-isCar _ = False
+data Programmer =
+    Programmer { os :: OperatingSystem
+                , lang :: ProgLang }
+    deriving (Eq, Show)
 
-areCars :: [Vehicle] -> [Bool]
-areCars = map isCar
+allOperatingSystems :: [OperatingSystem]
+allOperatingSystems =
+    [ GnuPlusLinux
+    , OpenBSDPlusNevermindJustBSDStill
+    , Mac
+    , Windows
+    ]
 
+allLanguages :: [ProgLang]
+allLanguages = [Haskell, Agda, Idris, PureScript]
 
+allProgrammers :: [Programmer]
+allProgrammers = [Programmer { os = o, lang = l } | o <- allOperatingSystems, l <- allLanguages]
 
-data Size = Size Integer deriving (Eq, Show)
+newtype Name = Name String deriving Show
+newtype Acres = Acres Int deriving Show
 
-doge = Plane PapuAir (Size 100)
+-- FarmerType is a Sum
+data FarmerType = DairyFarmer
+    | WheatFarmer
+    | SoybeanFarmer
+    deriving (Eq, Show)
+-- Farmer is a plain ole product of
+-- Name, Acres, and FarmerType
+data Farmer =
+    Farmer Name Acres FarmerType
+    deriving Show
 
-isPlane :: Vehicle -> Bool
-isPlane (Plane _ _) = True
-isPlane _ = False
+data FarmerRec =
+    FarmerRec { name
+    :: Name
+    , acres
+    :: Acres
+    , farmerType :: FarmerType }
+    deriving Show
 
-
-class TooMany a where
-    tooMany :: a -> Bool
-
-instance TooMany Int where
-    tooMany n = n > 42
-
-instance TooMany Integer where
-    tooMany n = n > 420
-
-instance TooMany Price where
-    tooMany (Price n) = n > 4200
-
-type MyInt = Int
-
-
-instance TooMany (Int, String) where
-    tooMany (n, _) = tooMany n
-
-newtype IntString = IntString (Int, String) deriving Show
-instance TooMany IntString where
-    tooMany (IntString (n, _)) = tooMany n
-
-instance TooMany (Int, Int) where
-    tooMany (n, m) = tooMany $ n + m
-
-data NumberOrBool = Numba Int8 | BoolyBool Bool deriving (Eq, Show)
-
--- parentheses due to syntactic
--- collision between (-) minus
--- and the negate function
-myNumba = Numba (-128)
+isDairyFarmerRec :: FarmerRec -> Bool
+isDairyFarmerRec = (==DairyFarmer) . farmerType
