@@ -1,6 +1,7 @@
 module Cipher where
 
 import Data.List (elemIndex, find)
+import System.IO
 
 lowers :: [Char]
 lowers = ['a'..'z']
@@ -67,3 +68,13 @@ unvigenere :: String -> String -> String
 unvigenere keyword = zipWith unvigenereChar repeatedKeyword
     where
         repeatedKeyword = concat $ repeat keyword
+
+runVigenere :: IO ()
+runVigenere = do
+    hSetBuffering stdout NoBuffering
+    putStr "Enter text to encrypt: "
+    str <- getLine
+    putStr "Enter keyword: "
+    keyword <- getLine
+    putStr "Encrypted: "
+    putStrLn $ vigenere keyword str
