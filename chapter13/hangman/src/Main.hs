@@ -46,7 +46,7 @@ randomWord' = gameWords >>= randomWord
 data Puzzle = Puzzle
   { word    :: String
   , guessed :: [Char]
-  }
+  } deriving (Eq)
 
 instance Show Puzzle where
   show p@(Puzzle _ gs) =

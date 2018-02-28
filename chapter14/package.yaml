@@ -1,6 +1,6 @@
-name:                chapter08
+name:                chapter14
 version:             0.1.0.0
-github:              "githubuser/chapter08"
+github:              "githubuser/chapter14"
 license:             BSD3
 author:              "Author name here"
 maintainer:          "example@example.com"
@@ -17,17 +17,19 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on Github at <https://github.com/githubuser/chapter08#readme>
+description:         Please see the README on Github at <https://github.com/githubuser/chapter14#readme>
 
 dependencies:
 - base >= 4.7 && < 5
+- containers
 - hspec
+- QuickCheck
 
 library:
   source-dirs: src
 
 executables:
-  chapter08-exe:
+  chapter14-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -35,10 +37,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - chapter08
+    - chapter14
 
 tests:
-  chapter08-test:
+  chapter14-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -46,4 +48,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - chapter08
+    - chapter14
