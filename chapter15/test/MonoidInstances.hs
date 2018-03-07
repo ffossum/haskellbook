@@ -140,6 +140,45 @@ compRightIdentity f x = left == right
     left = unComp (f <> mempty) $ x
     right = unComp f $ x
 
+-- [8]
+newtype Mem s a = Mem
+  { runMem :: s -> (a, s)
+  }
+
+instance Monoid a => Monoid (Mem s a) where
+  mempty = Mem (\s -> (mempty, s))
+  mappend (Mem f) (Mem g) = Mem h
+    where
+      h s0 = (a1 <> a2, s2)
+        where
+          (a1, s1) = f s0
+          (a2, s2) = g s1
+
+instance (CoArbitrary s, Arbitrary s, Arbitrary a) => Arbitrary (Mem s a) where
+  arbitrary = Mem <$> arbitrary
+
+instance Show (Mem s a) where
+  show _ = "(*)"
+
+memAssoc ::
+     (Eq s, Eq a, Monoid a) => (Mem s a) -> (Mem s a) -> (Mem s a) -> s -> Bool
+memAssoc f g h x = left == right
+  where
+    left = runMem (f <> (g <> h)) $ x
+    right = runMem ((f <> g) <> h) $ x
+
+memLeftIdentity :: (Monoid a, Eq a, Eq s) => (Mem s a) -> s -> Bool
+memLeftIdentity f x = left == right
+  where
+    left = runMem (mempty <> f) $ x
+    right = runMem f $ x
+
+memRightIdentity :: (Monoid a, Eq a, Eq s) => (Mem s a) -> s -> Bool
+memRightIdentity f x = left == right
+  where
+    left = runMem (f <> mempty) $ x
+    right = runMem f $ x
+
 monoidAssoc :: (Eq m, Monoid m) => m -> m -> m -> Bool
 monoidAssoc a b c = (a <> (b <> c)) == ((a <> b) <> c)
 
@@ -183,3 +222,7 @@ main = do
   quickCheck (compAssoc :: FuncAssoc (Comp String) String)
   quickCheck (compLeftIdentity :: (Comp String) -> String -> Bool)
   quickCheck (compRightIdentity :: (Comp String) -> String -> Bool)
+  putStrLn "Mem:"
+  quickCheck (memAssoc :: FuncAssoc (Mem Int String) Int)
+  quickCheck (memLeftIdentity :: (Mem Int String) -> Int -> Bool)
+  quickCheck (memRightIdentity :: (Mem Int String) -> Int -> Bool)
