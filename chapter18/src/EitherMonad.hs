@@ -1,6 +1,5 @@
 module EitherMonad where
 
-import           Control.Monad
 import           Test.QuickCheck
 import           Test.QuickCheck.Checkers
 import           Test.QuickCheck.Classes
