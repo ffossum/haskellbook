@@ -32,6 +32,7 @@ dependencies:
 - parsec
 - aeson
 - scientific
+- time
 
 library:
   source-dirs: src
