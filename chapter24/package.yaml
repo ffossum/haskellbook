@@ -33,6 +33,7 @@ dependencies:
 - aeson
 - scientific
 - time
+- QuickCheck
 
 library:
   source-dirs: src

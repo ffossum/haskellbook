@@ -7,11 +7,26 @@ import           Control.Applicative
 import           Data.List
 import           Data.Text           (pack, strip, unpack)
 import           Data.Time
+import           MaybeSuccess
+import           Test.QuickCheck
 import           Text.RawString.QQ
 import           Text.Trifecta
 
 newtype Activity =
   Activity (TimeOfDay, String)
+  deriving (Eq, Ord)
+
+alphaNumerals :: [Char]
+alphaNumerals = ['a' .. 'z'] ++ ['A' .. 'Z'] ++ ['0' .. '9']
+
+instance Arbitrary Activity where
+  arbitrary = Activity <$> ((,) <$> timeOfDay <*> description)
+    where
+      timeOfDay = do
+        hh <- abs <$> arbitrary
+        mm <- abs <$> arbitrary
+        return (TimeOfDay hh mm 0)
+      description = suchThat (listOf $ elements alphaNumerals) (not . null)
 
 instance Show Activity where
   show (Activity (time, desc)) = hh ++ ":" ++ mm ++ " " ++ desc
@@ -28,6 +43,7 @@ leftPadZero2 x      = x
 data DayEntry =
   DayEntry Day
            [Activity]
+  deriving (Eq)
 
 instance Show DayEntry where
   show (DayEntry day activities) = header ++ activityLines
@@ -35,8 +51,24 @@ instance Show DayEntry where
       header = "# " ++ (show day) ++ "\n"
       activityLines = intercalate "\n" $ map show activities
 
+instance Arbitrary DayEntry where
+  arbitrary = DayEntry <$> arbitraryDay <*> (sort <$> activities)
+    where
+      arbitraryDay = do
+        y <- suchThat arbitrary (\a -> a > 0 && a < 3000)
+        m <- suchThat arbitrary (\a -> a > 0 && a <= 12)
+        d <- suchThat arbitrary (\a -> a > 0 && a <= 31)
+        return (fromGregorian y m d)
+      activities = sort <$> (suchThat arbitrary (\a -> length a > 0))
+
 newtype Diary =
   Diary [DayEntry]
+  deriving (Eq)
+
+instance Arbitrary Diary where
+  arbitrary = Diary <$> entries
+    where
+      entries = suchThat arbitrary (\a -> length a > 0 && length a < 10)
 
 instance Show Diary where
   show (Diary entries) = intercalate "\n\n" $ map show entries
@@ -73,7 +105,10 @@ parseActivity = do
   char ':'
   mm <- fromIntegral <$> decimal
   whiteSpace
-  desc <- manyTill anyChar (try $ commentToken <|> (string "\n" >> return ()))
+  desc <-
+    manyTill
+      anyChar
+      (try $ commentToken <|> try (string "\n" >> return ()) <|> eof)
   return $ Activity (TimeOfDay hh mm 0, (unpack . strip . pack) desc)
 
 parseDiary :: Parser Diary
@@ -110,3 +145,10 @@ diaryEx =
 21:15 Read
 22:00 Sleep
 |]
+
+logSerializeProp :: Diary -> Bool
+logSerializeProp d =
+  maybeSuccess (parseString parseDiary mempty (show d)) == Just d
+
+testLog :: IO ()
+testLog = quickCheck logSerializeProp
