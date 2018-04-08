@@ -28,6 +28,7 @@ dependencies:
 - trifecta
 - bytestring
 - raw-strings-qq
+- transformers
 
 library:
   source-dirs: src
